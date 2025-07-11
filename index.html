@@ -47,7 +47,8 @@
         }
         .main-layout {
             display: grid;
-            grid-template-columns: 400px 1fr;
+            /* === 修改 1: 增加左侧面板宽度，为编辑区腾出空间 === */
+            grid-template-columns: 550px 1fr;
             gap: 30px;
             align-items: start;
         }
@@ -72,7 +73,7 @@
         .tab-content.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .form-group { display: flex; flex-direction: column; gap: 8px; }
-        label { font-weight: 600; color: var(--dark-gray); font-size: 0.9em; }
+        label { font-weight: 600; color: var(--dark-gray); font-size: 1.0em; }
         input[type="text"], input[type="number"], textarea, select {
             padding: 12px 16px;
             border: 2px solid var(--medium-gray);
@@ -87,7 +88,21 @@
             background: white;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        textarea { resize: vertical; min-height: 80px; }
+        
+        textarea {
+            resize: vertical;
+            min-height: 150px;  /* 增加最小高度 */
+            font-size: 1.3em;     /* 增加字体大小 */
+            line-height: 1.5;     /* 增加行高以提高可读性 */
+        }
+        
+        /* === 新增 3: 美化模型选择器样式 === */
+        #model-select {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
         .slider-group { display: flex; flex-direction: column; gap: 8px; }
         .slider-container { display: flex; align-items: center; gap: 12px; }
         input[type="range"] {
@@ -136,8 +151,8 @@
             position: relative;
         }
         #gallery-main-image {
-            max-width: 100%;
-            max-height: 100%;
+            max-width: 60%;
+            max-height: 50%;
             object-fit: contain;
             border-radius: 5px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.15);
@@ -301,11 +316,11 @@
             <div id="txt2img" class="tab-content active">
                 <div class="form-group">
                     <label for="prompt">正面提示词</label>
-                    <textarea id="prompt" placeholder="一只戴着巫师帽的猫的真实感照片"></textarea>
+                    <textarea id="prompt" placeholder="masterpiece, best quality, newest, highres, absurdres, highres, absurdres"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="negative_prompt">负面提示词</label>
-                    <textarea id="negative_prompt" placeholder="模糊, 低质量, 畸形, 水印"></textarea>
+                    <textarea id="negative_prompt" placeholder="worst quality,bad quality,normal quality,bad anatomy,bad hands,error,multiple_views, watermark,username,censored,"></textarea>
                 </div>
                 <div id="common-parameters-t2i"></div>
                 <button class="generate-btn" onclick="generateImage()">生成图像</button>
