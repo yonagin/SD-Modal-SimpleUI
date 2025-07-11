@@ -305,15 +305,15 @@ async function generateImage() {
 			const newImageIndex = imageHistory.push(historyEntry) - 1;
 
 			addImageToGallery(newImageIndex, imageSrc);
-			selectGalleryImage(newImageIndex);
+			selectGalleryImage(newImageIndex, () => {
+				setLoading(false);
+			});
 		} else {
 			throw new Error('API 返回结果中没有图片');
 		}
 	} catch (err) {
 		console.error('生成过程出错:', err);
 		showError(`生成失败: ${err.message}`);
-	} finally {
-		setLoading(false);
 	}
 }
 
@@ -362,19 +362,54 @@ function addImageToGallery(index, src) {
 	thumbnailsContainer.appendChild(thumb);
 }
 
-function selectGalleryImage(index) {
-	if (index < 0 || index >= imageHistory.length) return;
+function selectGalleryImage(index, onLoadCallback = null) {
+	if (index < 0 || index >= imageHistory.length) {
+		if (onLoadCallback) onLoadCallback(); // 如果索引无效，也应调用回调以避免UI卡死
+		return;
+	}
 	
 	currentSelectedGalleryIndex = index;
-	document.getElementById('placeholder').style.display = 'none';
-	document.getElementById('gallery-container').style.display = 'flex';
-	document.getElementById('gallery-main-image').src = imageHistory[index].src;
+
+	const mainImage = document.getElementById('gallery-main-image');
+
+	// --- 核心改动 ---
+	// 设置 onload 和 onerror 处理器
+	const handleLoad = () => {
+		// 图片成功加载后，显示画廊并执行回调
+		document.getElementById('placeholder').style.display = 'none';
+		document.getElementById('gallery-container').style.display = 'flex';
+		document.querySelector('.gallery-actions').style.display = 'flex';
+
+		if (onLoadCallback) {
+			onLoadCallback();
+		}
+
+		// 清理事件监听器，防止内存泄漏
+		mainImage.onload = null;
+		mainImage.onerror = null;
+	};
+
+	const handleError = () => {
+		// 图片加载失败
+		showError('浏览器渲染图片失败。');
+		if (onLoadCallback) {
+			onLoadCallback(); // 同样需要调用回调来结束加载状态
+		}
+		// 清理事件监听器
+		mainImage.onload = null;
+		mainImage.onerror = null;
+	};
+
+	mainImage.onload = handleLoad;
+	mainImage.onerror = handleError;
 	
+	// 在设置完事件监听器后，再设置 src 属性来触发加载
+	mainImage.src = imageHistory[index].src;
+
+	// 更新缩略图的状态 (这部分可以立即执行)
 	document.querySelectorAll('.thumbnail-item').forEach(thumb => {
 		thumb.classList.toggle('active', parseInt(thumb.dataset.index) === index);
 	});
-
-	document.querySelector('.gallery-actions').style.display = 'flex';
 
 	const activeThumb = document.querySelector(`.thumbnail-item[data-index='${index}']`);
 	if(activeThumb) {
