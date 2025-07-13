@@ -295,6 +295,42 @@
             .main-layout { grid-template-columns: 1fr; }
             .right-panel { min-height: 400px; }
         }
+        
+        /* 用户提示框样式 */
+        .user-tip {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 15px 20px;
+            max-width: 350px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            font-size: 0.9em;
+            line-height: 1.4;
+            color: var(--text-color);
+        }
+        
+        .user-tip h4 {
+            color: var(--primary-color);
+            margin: 0 0 8px 0;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        
+        .user-tip p {
+            margin: 0;
+            color: var(--dark-gray);
+        }
+        
+        .user-tip .tip-icon {
+            color: var(--primary-color);
+            margin-right: 8px;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
@@ -452,5 +488,12 @@
 
 <script src="config.js"></script>
 <script src="app.js" ></script>
+
+<!-- 用户提示框 -->
+<div class="user-tip">
+    <h4><span class="tip-icon">💡</span>使用提示</h4>
+    <p>模型运行在云端A100 GPU上，为节省成本，仅在请求时加载模型，生成完成后GPU会立即关闭，首次加载和单次生成会有较高延迟，请耐心等待。您可以在等待期间完善提示词和调整参数。</p>
+</div>
+
 </body>
 </html>

@@ -347,6 +347,7 @@ function showError(message) {
     }
 
     const errorDiv = document.getElementById('error-message');
+	const userTip = document.querySelector('.user-tip');
     errorDiv.textContent = message;
     errorDiv.style.display = 'block';
 
@@ -354,9 +355,17 @@ function showError(message) {
     if (imageHistory.length === 0) {
         document.getElementById('placeholder').style.display = 'flex';
         document.getElementById('gallery-container').style.display = 'none';
+        // 显示用户提示  
+        if (userTip) {
+            userTip.style.display = 'block';
+        }
     } else {
         document.getElementById('placeholder').style.display = 'none';
         document.getElementById('gallery-container').style.display = 'flex';
+        // 隐藏用户提示
+        if (userTip) {
+            userTip.style.display = 'none';
+        }
     }
 
     // 设置一个新的计时器，在5秒后自动隐藏错误提示
@@ -393,6 +402,12 @@ function selectGalleryImage(index, onLoadCallback = null) {
 		document.getElementById('placeholder').style.display = 'none';
 		document.getElementById('gallery-container').style.display = 'flex';
 		document.querySelector('.gallery-actions').style.display = 'flex';
+		
+		// 隐藏用户提示
+		const userTip = document.querySelector('.user-tip');
+		if (userTip) {
+			userTip.style.display = 'none';
+		}
 
 		if (onLoadCallback) {
 			onLoadCallback();
