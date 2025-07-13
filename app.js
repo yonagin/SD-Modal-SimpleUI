@@ -285,13 +285,19 @@ async function generateImage() {
 
 	setLoading(true);
 
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 600000); // 10分钟
+
 	try {
 		const endpoint = activeTab === 'txt2img' ? '/sdapi/v1/txt2img' : '/sdapi/v1/img2img';
 		const response = await fetch(`${API_BASE_URL}${endpoint}`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(payload)
+			body: JSON.stringify(payload),
+			signal: controller.signal // 💡 关键点：关联超时控制
 		});
+
+		clearTimeout(timeoutId); // 清除计时器
 
 		if (!response.ok) {
 			throw new Error((await response.json()).detail || `服务器错误: ${response.status}`);
@@ -301,7 +307,7 @@ async function generateImage() {
 		if (data.images && data.images[0]) {
 			const imageSrc = `data:image/png;base64,${data.images[0]}`;
 			const imageParams = parseGenerationInfo(data.info);
-			
+
 			const historyEntry = { src: imageSrc, info: data.info, params: imageParams };
 			const newImageIndex = imageHistory.push(historyEntry) - 1;
 
@@ -313,8 +319,13 @@ async function generateImage() {
 			throw new Error('API 返回结果中没有图片');
 		}
 	} catch (err) {
+		clearTimeout(timeoutId);
 		console.error('生成过程出错:', err);
-		showError(`生成失败: ${err.message}`);
+		if (err.name === 'AbortError') {
+			showError('请求超时：服务器响应过慢或网络不稳定');
+		} else {
+			showError(`生成失败: ${err.message}`);
+		}
 		setLoading(false);
 	}
 }
