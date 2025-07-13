@@ -5,6 +5,7 @@ let activeTab = 'txt2img';
 let pngInfoParams = null; // 用于存储从PNG解析的参数
 let imageHistory = []; // {src, info, params}
 let currentSelectedGalleryIndex = -1;
+let errorTimeoutId = null; 
 
 
 // --- 初始化 ---
@@ -314,6 +315,7 @@ async function generateImage() {
 	} catch (err) {
 		console.error('生成过程出错:', err);
 		showError(`生成失败: ${err.message}`);
+		setLoading(false);
 	}
 }
 
@@ -339,16 +341,28 @@ function setLoading(isLoading) {
 }
 
 function showError(message) {
-	const errorDiv = document.getElementById('error-message');
-	errorDiv.textContent = message;
-	errorDiv.style.display = 'block';
-	if (imageHistory.length === 0) {
-		document.getElementById('placeholder').style.display = 'flex';
-		document.getElementById('gallery-container').style.display = 'none';
-	} else {
-		document.getElementById('placeholder').style.display = 'none';
-		document.getElementById('gallery-container').style.display = 'flex';
-	}
+    // 如果已有正在倒计时的隐藏任务，先取消它
+    if (errorTimeoutId) {
+        clearTimeout(errorTimeoutId);
+    }
+
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+
+    // 保持你原有的逻辑，根据历史记录决定显示画廊还是占位符
+    if (imageHistory.length === 0) {
+        document.getElementById('placeholder').style.display = 'flex';
+        document.getElementById('gallery-container').style.display = 'none';
+    } else {
+        document.getElementById('placeholder').style.display = 'none';
+        document.getElementById('gallery-container').style.display = 'flex';
+    }
+
+    // 设置一个新的计时器，在5秒后自动隐藏错误提示
+    errorTimeoutId = setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000); // 5000毫秒 = 5秒，你可以按需调整这个时间
 }
 
 // --- 画廊相关函数 ---
